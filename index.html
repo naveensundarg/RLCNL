@@ -46,7 +46,14 @@ The <code>define-compositional-nlg</code> operator lets one specify how functors
 
     <span class="p">(</span><span class="nv">define-compositional-nlg</span> <span class="nv">loves</span> <span class="p">(</span><span class="nv">x</span> <span class="nv">y</span><span class="p">)</span> <span class="nv">x</span> <span class="s">" loves "</span> <span class="nv">y</span><span class="p">)</span>
 
-    <span class="p">(</span><span class="nv">nlg</span> <span class="p">(</span><span class="nv">parse</span> <span class="o">'</span><span class="p">(</span><span class="nv">loves</span> <span class="nv">jack</span> <span class="nv">mary</span><span class="p">)))</span> <span class="nv">==&gt;</span> <span class="s">"JACK LOVES MARY  "</span>
+    <span class="p">(</span><span class="nv">nlg</span> <span class="p">(</span><span class="nv">parse</span> <span class="o">'</span><span class="p">(</span><span class="nv">loves</span> <span class="nv">jack</span> <span class="nv">mary</span><span class="p">)))</span> <span class="nv">==&gt;</span> 
+
+     <span class="s">"JACK LOVES MARY  "</span>
+
+    <span class="p">(</span><span class="nv">nlg</span> <span class="p">(</span><span class="nv">parse</span> <span class="o">'</span><span class="p">(</span><span class="nv">perceives</span> <span class="nv">jack</span> <span class="nv">t1</span> <span class="p">(</span><span class="nv">loves</span> <span class="nv">jack</span> <span class="nv">mary</span><span class="p">))))</span> <span class="nv">==&gt;</span> 
+
+    <span class="s">"AGENT JACK  PERCEIVES THAT JACK LOVES MARY   AT MOMENT T1  "</span>
+
 </pre></div>
       </section>
     </div>
