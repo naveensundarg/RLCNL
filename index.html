@@ -50,6 +50,9 @@ The <code>define-compositional-nlg</code> operator lets one specify how functors
 
      <span class="s">"JACK LOVES MARY  "</span>
 
+    <span class="p">(</span><span class="nv">define-compositional-nlg</span> <span class="nv">believes</span> <span class="p">(</span><span class="nv">a</span> <span class="nv">m</span> <span class="nv">P</span><span class="p">)</span>
+      <span class="s">"Agent "</span> <span class="nv">a</span> <span class="s">" perceives that "</span> <span class="nv">P</span> <span class="s">" at moment "</span> <span class="nv">m</span><span class="p">)</span>
+
     <span class="p">(</span><span class="nv">nlg</span> <span class="p">(</span><span class="nv">parse</span> <span class="o">'</span><span class="p">(</span><span class="nv">perceives</span> <span class="nv">jack</span> <span class="nv">t1</span> <span class="p">(</span><span class="nv">loves</span> <span class="nv">jack</span> <span class="nv">mary</span><span class="p">))))</span> <span class="nv">==&gt;</span> 
 
     <span class="s">"AGENT JACK  PERCEIVES THAT JACK LOVES MARY   AT MOMENT T1  "</span>
