@@ -1,5 +1,3 @@
-(ql:quickload "cl-unification"
- )
 ;;;;;; NLG CORE REPRESENTATIONS;;;;;
 (defun atomic-functor? (form) (symbolp form))
 (defun functor-name (form) (if (atomic-functor? form) form (first form)))
