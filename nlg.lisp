@@ -1,27 +1,57 @@
+(ql:quickload "cl-unification"
+ )
 ;;;;;; NLG CORE REPRESENTATIONS;;;;;
 (defun atomic-functor? (form) (symbolp form))
 (defun functor-name (form) (if (atomic-functor? form) form (first form)))
 (defun functor-arguments (form) (rest form))
+;; for now just a list representation. will modify to use clos and integrate with cec dpl.
 (defun parse (form) form)
 
 (defparameter *nlg-mappings* (make-hash-table))
  
 (defmacro define-compositional-nlg (functor  args &body specs)
   `(setf (gethash ',functor  *nlg-mappings*)
-	 (lambda ,args (concatenate 'string ,@specs " "))))
+	 (lambda ,args (concatenate 'string ,@specs ))))
+
+(defmacro define-self-named-constants (&rest constants)
+  `(progn
+     ,@(mapcar 
+	(lambda (constant) 
+	  `(define-compositional-nlg  ,constant () ,(symbol-name constant)))
+	constants)))
+
+(defparameter *post-processing-pipline*
+  ())
+
+(defun post-process (sentence)
+  (reduce (lambda (current func) (funcall func current)) 
+	  *post-processing-pipline*
+	  :initial-value sentence))
 
 (defun nlg (form)
-  (string-upcase 
+  (post-process 
    (apply (gethash (functor-name form)  *nlg-mappings*)
 	  (if (not (atomic-functor? form)) 
 	      (mapcar #'nlg (functor-arguments form))
 	      nil))))
+
+(defmacro time-index (m)
+ `(cond 
+    ((equalp ,m "now") " now")
+    ((equalp ,m "anytime") " at any time")
+    (t  (concatenate' string " at  moment " ,m ))))
 
 ;;;;; NLG DEFINITIONS FOR A TOY LOGIC;;
 (define-compositional-nlg jack () "jack")
 (define-compositional-nlg mary () "mary")
 (define-compositional-nlg loves (x y) x " loves " y)
 (nlg (parse '(loves jack mary)))
+
+;;;;; NLG DEFINITIONS FOR LOGICAL CONNECTIVES ;;;;
+(define-compositional-nlg and (x y) x ", and " y)
+(define-compositional-nlg or (x y) x ", or " y)
+(define-compositional-nlg implies (x y) "if " x ", then " y)
+(define-compositional-nlg not (x) "it is not the case that " x)
 
 ;;;;; NLG DEFINITIONS FOR DCEC ;;;;;;;
 (define-compositional-nlg action (agent actiontype)
@@ -31,10 +61,10 @@
   "Fluent " fluent " holds initially")
 
 (define-compositional-nlg holds (fluent moment)
-  "Fluent " fluent " holds at the moment " moment)
+  "the fluent, '" fluent "', holds " (time-index moment))
 
 (define-compositional-nlg happens (event moment)
-  "Event " event " happens at the moment " moment)
+  event " happens" (time-index moment))
 
 (define-compositional-nlg clipped (moment-1 fluent moment-2)
   "Fluent " fluent "is clipped between moment " moment-1 " and moment " moment-2)
@@ -43,23 +73,35 @@
   "Fluent " fluent "is initiated between moment " moment-1 " and moment " moment-2)
 
 (define-compositional-nlg terminates (moment-1 fluent moment-2)
-  "Fluent " fluent "is terminates between moment " moment-1 " and moment " moment-2)
+  "Fluent " fluent "is terminated between moment " moment-1 " and moment " moment-2)
 
 (define-compositional-nlg prior (moment-1 moment-2)
   "Moment " moment-1 " happens before moment " moment-2)
 
 (define-compositional-nlg perceives (a m P)
-  "Agent " a " perceives that " P " at moment " m)
+   a  (time-index m) " perceives that " P )
 
 (define-compositional-nlg knows (a m P)
-  "Agent " a " perceives that " P " at moment " m)
+  a (time-index m) " knows that " P)
 
 (define-compositional-nlg believes (a m P)
-  "Agent " a " perceives that " P " at moment " m)
+  a (time-index m) " believes that " P)
 
+;;; NON LOGICAL FUNCTORS                                                                                                                                                         
+(define-compositional-nlg carrying (a b)
+  a " is carrying " b)
 ;;;;; CONSTANTS ;;;;;
-(define-compositional-nlg jack () "jack")
+
+(define-self-named-constants 
+    t1 t2 t3 t4 now anytime
+    cogito jack mary marie
+         )
+
+(define-compositional-nlg ugv () "the ugv")
+(define-compositional-nlg commander () "the commander")
+(define-compositional-nlg soldier () "the soldier")
+(define-compositional-nlg firefight () "a firefight")
 (define-compositional-nlg t1 () "t1")
-
-
 (nlg (parse '(perceives jack t1 (loves jack mary))))
+(nlg (parse '(knows ugv now (holds (carrying ugv soldier) now))))
+(nlg (parse '(believes ugv now (believes commander t1 (not (perceives ugv anytime (happens firefight anytime)))))))
