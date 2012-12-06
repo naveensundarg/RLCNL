@@ -39,6 +39,7 @@
  `(cond 
     ((equalp ,m "now") " now")
     ((equalp ,m "anytime") " at any time")
+    ((equalp ,m "alltime") " all the time")
     (t  (concatenate' string " at  moment " ,m ))))
 
 ;;;;; NLG DEFINITIONS FOR A TOY LOGIC;;
@@ -55,7 +56,7 @@
 
 ;;;;; NLG DEFINITIONS FOR DCEC ;;;;;;;
 (define-compositional-nlg action (agent actiontype)
-  "Action of type " actiontype "performed by agent " agent)
+  actiontype " by " agent)
 
 (define-compositional-nlg initially (fluent)
   "Fluent " fluent " holds initially")
@@ -87,21 +88,32 @@
 (define-compositional-nlg believes (a m P)
   a (time-index m) " believes that " P)
 
+(define-compositional-nlg ought (a m P Q)
+  "it is obligatory" (time-index m) " under situation " P ", " a " should see to it that " Q)
+
+(define-compositional-nlg  * (a) a " itself")
+ 
 ;;; NON LOGICAL FUNCTORS                                                                                                                                                         
 (define-compositional-nlg carrying (a b)
   a " is carrying " b)
 ;;;;; CONSTANTS ;;;;;
 
 (define-self-named-constants 
-    t1 t2 t3 t4 now anytime
-    cogito jack mary marie
-         )
+    t1 t2 t3 t4 now anytime alltime
+    cogito jack mary marie)
+
+(define-compositional-nlg main () "main")
+(define-compositional-nlg mission (m)  m " mission being carried out")
 
 (define-compositional-nlg ugv () "the ugv")
 (define-compositional-nlg commander () "the commander")
 (define-compositional-nlg soldier () "the soldier")
 (define-compositional-nlg firefight () "a firefight")
+(define-compositional-nlg radio-silence () "maintaing silence")
+(define-compositional-nlg main-mission () "the main mission being carried out")
 (define-compositional-nlg t1 () "t1")
 (nlg (parse '(perceives jack t1 (loves jack mary))))
 (nlg (parse '(knows ugv now (holds (carrying ugv soldier) now))))
 (nlg (parse '(believes ugv now (believes commander t1 (not (perceives ugv anytime (happens firefight anytime)))))))
+
+(nlg (parse '(knows ugv now (ought ugv anytime (mission main) (happens (action (* ugv) radio-silence) alltime)))))
